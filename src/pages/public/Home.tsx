@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CalendarDays, ShieldCheck, Smartphone, Sun, Phone, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { LogoMark3D } from '@/components/layout/LogoMark3D'
 import { supabase } from '@/lib/supabase'
 import { ARENA, MODALITY_LABELS, formatCurrencyBRL, type Modality } from '@/lib/domain'
 
@@ -79,19 +80,7 @@ export default function Home() {
           </div>
 
           <div className="relative hidden items-center justify-center md:flex">
-            <div className="relative flex h-80 w-80 items-center justify-center rounded-full border border-primary/20 bg-gradient-to-br from-primary/20 to-transparent">
-              <div className="flex h-56 w-56 items-center justify-center rounded-full bg-primary/90 shadow-2xl shadow-primary/30">
-                <svg viewBox="0 0 48 48" className="h-32 w-32 text-primary-foreground/90">
-                  <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none">
-                    <path d="M24 4c-7 6-7 34 0 40" />
-                    <path d="M24 4c7 6 7 34 0 40" />
-                    <path d="M5 16c9-3 29-3 38 0" />
-                    <path d="M5 32c9 3 29 3 38 0" />
-                    <circle cx="24" cy="24" r="20" />
-                  </g>
-                </svg>
-              </div>
-            </div>
+            <LogoMark3D className="h-72 w-72" />
           </div>
         </div>
       </section>
