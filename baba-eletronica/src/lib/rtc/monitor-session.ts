@@ -1,7 +1,7 @@
 // Unidade dos pais: conecta à câmera, recebe vídeo/áudio, controla a câmera
 // remotamente e permite falar com o bebê (push-to-talk).
 import { safetyCode, sdpFingerprint, type SafetyCode } from '../crypto'
-import { platformName, setAudioSession } from '../device'
+import { platformName, ScreenWake, setAudioSession } from '../device'
 import { settings } from '../settings'
 import {
   directory,
@@ -36,6 +36,7 @@ export interface MonitorState {
   talkError: string | null
   everLive: boolean
   lostSince: number | null
+  wakeLock: boolean
 }
 
 const HISTORY = 120 // 30 s a 4 amostras/s
@@ -62,6 +63,7 @@ export class MonitorSession {
   private alerted = false
   private statsPrev = { bytes: 0, at: 0 }
   private stopped = false
+  private wake = new ScreenWake()
 
   constructor() {
     this.state = createStore<MonitorState>({
@@ -80,12 +82,16 @@ export class MonitorSession {
       talkError: null,
       everLive: false,
       lostSince: null,
+      wakeLock: false,
     })
   }
 
   /** Chamar a partir de um toque (desbloqueia áudio e, opcionalmente, o microfone). */
   async start() {
     setAudioSession('playback')
+    // A tela precisa ficar acesa: com o aparelho bloqueado o navegador pausa o app.
+    this.wake.onChange = (wakeLock) => this.state.patch({ wakeLock })
+    void this.wake.enable()
     // Com permissão de microfone o navegador revela os IPs locais reais, o que
     // melhora a conexão direta na mesma rede Wi-Fi (e já deixa o "falar" pronto).
     if (settings.get().askMicOnMonitor) {
@@ -109,6 +115,7 @@ export class MonitorSession {
 
   stop() {
     this.stopped = true
+    void this.wake.disable()
     setRole('idle')
     this.timers.forEach(clearInterval)
     this.cleanups.forEach((fn) => fn())
@@ -237,7 +244,10 @@ export class MonitorSession {
 
   private markDown() {
     const s = this.state.get()
-    if (s.phase === 'live') this.state.patch({ phase: 'reconnecting', lostSince: s.lostSince ?? Date.now() })
+    if (s.phase === 'live') {
+      // Zera os medidores: valores antigos não devem parecer "ao vivo".
+      this.state.patch({ phase: 'reconnecting', lostSince: s.lostSince ?? Date.now(), level: 0, cry: 0, motion: 0 })
+    }
   }
 
   private markLive() {

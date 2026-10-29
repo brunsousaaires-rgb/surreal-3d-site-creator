@@ -107,8 +107,10 @@ export function MonitorScreen() {
     v.muted = false
     v.play()
       .then(() => setNeedsTap(false))
-      .catch(() => {
-        // Sem permissão de autoplay com som: toca mudo e pede um toque.
+      .catch((e: DOMException) => {
+        // Só a política de autoplay (NotAllowedError) exige um toque; interrupções
+        // por troca/queda do stream (AbortError) se resolvem sozinhas.
+        if (e?.name !== 'NotAllowedError') return
         v.muted = true
         void v.play().catch(() => {})
         setNeedsTap(true)
@@ -219,7 +221,10 @@ export function MonitorScreen() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-black">
       {/* Vídeo */}
-      <ZoomPan className={cn('absolute inset-0', !showVideo && 'invisible')} onTap={() => setChrome((c) => !c)}>
+      <ZoomPan
+        className={cn('absolute inset-0 transition-opacity duration-500', !showVideo && 'invisible', showVideo && !live && 'opacity-40 grayscale')}
+        onTap={() => setChrome((c) => !c)}
+      >
         <video
           ref={videoRef}
           playsInline
@@ -290,6 +295,7 @@ export function MonitorScreen() {
               </button>
             )}
             {st && !st.wakeLock && <Pill tone="moon">Tela da câmera pode bloquear</Pill>}
+            {!s.wakeLock && <Pill tone="moon">Desative o bloqueio automático deste aparelho</Pill>}
           </div>
         </div>
       )}
