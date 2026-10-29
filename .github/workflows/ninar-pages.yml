@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: ninar-pages
@@ -42,3 +43,10 @@ jobs:
           git add -A
           git commit -q -m "Publicar Ninar ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+      - name: Pedir novo build do GitHub Pages
+        # Pushes feitos com GITHUB_TOKEN podem não disparar o build do Pages sozinhos.
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" || echo "Pedido de build não aceito (o push ainda pode disparar o build)."
