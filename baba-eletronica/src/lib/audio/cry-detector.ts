@@ -126,7 +126,7 @@ export class CryDetector {
     }
     try {
       if (!this.ctx.audioWorklet) throw new Error('sem AudioWorklet')
-      await this.ctx.audioWorklet.addModule(new URL('/worklets/tap.js', location.origin).toString())
+      await this.ctx.audioWorklet.addModule(new URL(`${import.meta.env.BASE_URL}worklets/tap.js`, location.origin).toString())
       const node = new AudioWorkletNode(this.ctx, 'ninar-tap', { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 1 })
       node.port.onmessage = (ev) => push(ev.data as Float32Array)
       this.tap = node

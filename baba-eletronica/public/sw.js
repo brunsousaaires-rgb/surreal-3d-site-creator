@@ -4,12 +4,14 @@ const SHELL = 'ninar-shell-v1'
 const ASSETS = 'ninar-assets-v1'
 const EXTERNAL = 'ninar-ai-v1' // modelo de IA e WASM (baixados uma vez)
 const KEEP = [SHELL, ASSETS, EXTERNAL]
+// Funciona na raiz do domínio ou num subcaminho (ex.: GitHub Pages).
+const BASE = new URL('./', self.location).pathname
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(SHELL)
-      .then((c) => c.addAll(['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon.svg', '/worklets/tap.js']))
+      .then((c) => c.addAll(['', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon.svg', 'worklets/tap.js'].map((p) => BASE + p)))
       .then(() => self.skipWaiting()),
   )
 })
@@ -34,16 +36,16 @@ self.addEventListener('fetch', (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone()
-          caches.open(SHELL).then((c) => c.put('/', copy))
+          caches.open(SHELL).then((c) => c.put(BASE, copy))
           return res
         })
-        .catch(() => caches.match('/').then((r) => r || Response.error())),
+        .catch(() => caches.match(BASE).then((r) => r || Response.error())),
     )
     return
   }
 
   // Arquivos com hash no nome: imutáveis → cache primeiro.
-  if (url.origin === location.origin && url.pathname.startsWith('/assets/')) {
+  if (url.origin === location.origin && url.pathname.startsWith(BASE + 'assets/')) {
     event.respondWith(cacheFirst(ASSETS, req))
     return
   }
@@ -85,7 +87,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       const client = list.find((c) => 'focus' in c)
-      return client ? client.focus() : self.clients.openWindow('/')
+      return client ? client.focus() : self.clients.openWindow(BASE)
     }),
   )
 })

@@ -20,8 +20,8 @@ export async function showNotification(title: string, body: string, tag: string)
     body,
     tag,
     renotify: true,
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: `${import.meta.env.BASE_URL}icons/icon-192.png`,
+    badge: `${import.meta.env.BASE_URL}icons/icon-192.png`,
     vibrate: [300, 150, 300],
   }
   try {

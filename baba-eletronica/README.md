@@ -76,7 +76,9 @@ EXPECT=none FAKE_AUDIO=silencio.wav node scripts/e2e-cry.mjs
 
 ## Deploy
 
-Projeto Vercel com **Root Directory = `baba-eletronica`** (framework Vite). Não precisa de variáveis de ambiente nem de backend.
+**GitHub Pages (automático):** o workflow `.github/workflows/ninar-pages.yml` compila com `BASE_PATH=/<repositório>/` e publica na branch `gh-pages` a cada push na `main` que altere `baba-eletronica/`. Endereço: `https://<usuário>.github.io/<repositório>/`. Como o Pages não permite cabeçalhos próprios, a CSP vai embutida no HTML.
+
+**Vercel (alternativa):** projeto com **Root Directory = `baba-eletronica`** (framework Vite); `vercel.json` adiciona os cabeçalhos de segurança. Não precisa de variáveis de ambiente nem de backend.
 
 ## Limitações (honestas)
 
