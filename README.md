@@ -41,3 +41,7 @@ npm run build
 ## Deploy
 
 O projeto está configurado para deploy contínuo na [Vercel](https://vercel.com), lendo as variáveis de ambiente acima.
+
+## Outros projetos neste repositório
+
+- [`baba-eletronica/`](baba-eletronica/README.md) — **Ninar**, babá eletrônica privada (PWA com vídeo P2P cifrado de ponta a ponta, detecção de choro, visão noturna e sons de ninar). Projeto independente, com deploy próprio.
